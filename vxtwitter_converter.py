@@ -43,8 +43,8 @@ def main():
         pyperclip.copy(clipboard_contents)
 
 
-def read_config() -> dict:
-    with open('config.json', 'r') as f:
+def read_config(__config_file_name='config.json') -> dict:
+    with open(__config_file_name, 'r') as f:
         return json.load(f)
 
 
@@ -88,8 +88,8 @@ def clipboard_scan_and_replace(__config):
     # print(clipboard_contents)
     modified_clipboard = clipboard_contents
 
-    modified_clipboard = replace_text(config, modified_clipboard)
-    modified_clipboard = strip_partial_line(config, modified_clipboard)
+    modified_clipboard = replace_text(__config, modified_clipboard)
+    modified_clipboard = strip_partial_line(__config, modified_clipboard)
     # print(f'returned: {replace_text(config, modified_clipboard)}')
 
     # Only update the clipboard if it's been changed
