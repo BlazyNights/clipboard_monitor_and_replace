@@ -79,7 +79,7 @@ def strip_partial_line(__config: dict, __clipboard_input: str) -> str:
     for strip_partial_line_rule in __config['line_partial_strip']:
         if any(x in __clipboard_input for x in strip_partial_line_rule['urls']) \
                 and strip_partial_line_rule['characters_to_strip_after'] in __clipboard_input:
-            __clipboard_input = __clipboard_input.rsplit('/ref')[0]
+            __clipboard_input = __clipboard_input.rsplit(strip_partial_line_rule['characters_to_strip_after'])[0]
     return changed_text or __clipboard_input
 
 
