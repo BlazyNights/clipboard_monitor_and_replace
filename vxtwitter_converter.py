@@ -75,6 +75,7 @@ def replace_text(__config: dict, __clipboard_input: str) -> str:
 
 
 def strip_partial_line(__config: dict, __clipboard_input: str) -> str:
+    """Looks for characters from config and strips the str after them"""
     changed_text = ''
     for strip_partial_line_rule in __config['line_partial_strip']:
         if any(x in __clipboard_input for x in strip_partial_line_rule['urls']) \
@@ -83,7 +84,8 @@ def strip_partial_line(__config: dict, __clipboard_input: str) -> str:
     return changed_text or __clipboard_input
 
 
-def clipboard_scan_and_replace(__config):
+def clipboard_scan_and_replace(__config) -> None:
+    """Main loop function, updates the clipboard"""
     clipboard_contents = pyperclip.paste()
     # print(clipboard_contents)
     modified_clipboard = clipboard_contents
