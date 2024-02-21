@@ -53,12 +53,14 @@ def write_config() -> None:
         __config = {
             'line_replace': [
                 {'find': '/twitter.com', 'replace': '/vxtwitter.com'},
-                {'find': 'x.com', 'replace': 'fixupx.com'},
+                {'find': '/x.com', 'replace': '/fixupx.com'},
                 {'find': 'www.reddit.com', 'replace': 'old.reddit.com'}
             ],
             'line_partial_strip': [
-                {'urls': ('twitter.com', 'x.com', 'cdn.discordapp.com'), 'characters_to_strip_after': '?'},
-                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '/ref'}]
+                {'urls': ('twitter.com', 'x.com',), 'characters_to_strip_after': '?'},
+                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '/ref'},
+                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '?ref'},
+                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '&ref'}]
         }
         json.dump(__config, f, indent=4)
 
