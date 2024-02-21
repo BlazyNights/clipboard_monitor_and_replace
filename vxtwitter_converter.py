@@ -51,6 +51,7 @@ def read_config(__config_file_name='config.json') -> dict:
 def write_config() -> None:
     with open('config.json', 'w') as f:
         __config = {
+            'clipboard_monitor_interval': '.5',
             'line_replace': [
                 {'find': '/twitter.com', 'replace': '/vxtwitter.com'},
                 {'find': '/x.com', 'replace': '/fixupx.com'},
@@ -119,7 +120,7 @@ if __name__ == '__main__':
         while True:
             try:
                 clipboard_scan_and_replace(config)
-                time.sleep(.5)
+                time.sleep(float(config['clipboard_monitor_interval']))
 
             except pyperclip.PyperclipWindowsException as e:
                 print(e)
