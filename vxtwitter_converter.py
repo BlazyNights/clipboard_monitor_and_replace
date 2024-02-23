@@ -2,45 +2,7 @@ import time
 import pyperclip
 import re
 import json
-
-
-def main():
-    clipboard_contents = pyperclip.paste()
-    clipboard_modified = False
-    # Search for: http or https, ://, any of the domains in the (), non-whitespace, literal ?
-    question_mark_search = re.compile('https?://(twitter.com|x.com|cdn.discordapp.com)\S+\?')
-
-    clipboard_contents = clipboard_contents.splitlines()
-    for index, line in enumerate(clipboard_contents):
-        if '//twitter.com' in line:
-            clipboard_modified = True
-            line = line.replace('twitter.com', 'vxtwitter.com')
-            print(f'Replaced: {line}')
-        elif '//x.com' in line:
-            clipboard_modified = True
-            line = line.replace('x.com', 'fixupx.com')
-            print(f'Replaced: {line}')
-        elif '//www.reddit.com' in line:
-            clipboard_modified = True
-            line = line.replace('www.reddit.com', 'old.reddit.com')
-
-        # question_mark_matched = re.search(question_mark_search, line)
-        # if question_mark_matched:
-        if any(x in line for x in ('twitter.com', 'x.com', 'cdn.discordapp.com')) and '?' in line:
-            clipboard_modified = True
-            line = line.rsplit('?')[0]
-            print(f'Replaced: {line}')
-
-        if '/ref' in line and 'amazon.com' in line:
-            clipboard_modified = True
-            line = line.rsplit('/ref')[0]
-            print(f'Replaced: {line}')
-
-        clipboard_contents[index] = line
-
-    if clipboard_modified:
-        clipboard_contents = '\n'.join(clipboard_contents)
-        pyperclip.copy(clipboard_contents)
+from pprint import pprint
 
 
 def read_config(__config_file_name='config.json') -> dict:
@@ -55,7 +17,8 @@ def write_config() -> None:
             'line_replace': [
                 {'find': '/twitter.com', 'replace': '/vxtwitter.com'},
                 {'find': '/x.com', 'replace': '/fixupx.com'},
-                {'find': 'www.reddit.com', 'replace': 'old.reddit.com'}
+                {'find': 'www.reddit.com', 'replace': 'old.reddit.com'},
+                {'find': 'www.furaffinity.net', 'replace': 'www.fxfuraffinity.net'},
             ],
             'line_partial_strip': [
                 {'urls': ('twitter.com', 'x.com',), 'characters_to_strip_after': '?'},
@@ -104,24 +67,17 @@ def clipboard_scan_and_replace(__config) -> None:
 
 
 if __name__ == '__main__':
-    # old = True
-    old = False
-    if old:
-        while True:
-            try:
-                main()
-                time.sleep(.5)
-            except pyperclip.PyperclipWindowsException as e:
-                print(e)
-    else:
-        write_config()
-        config = read_config()
+    write_config()
+    config = read_config()
+    print('Loaded rules:')
+    pprint(config, width=120)
+    print(f'Now scanning clipboard every {config['clipboard_monitor_interval']}s')
 
-        while True:
-            try:
-                clipboard_scan_and_replace(config)
-                time.sleep(float(config['clipboard_monitor_interval']))
+    while True:
+        try:
+            clipboard_scan_and_replace(config)
+            time.sleep(float(config['clipboard_monitor_interval']))
 
-            except pyperclip.PyperclipWindowsException as e:
-                print(e)
+        except pyperclip.PyperclipWindowsException as e:
+            print(e)
 
