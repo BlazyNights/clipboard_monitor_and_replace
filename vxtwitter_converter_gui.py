@@ -13,14 +13,17 @@ class Application(tk.Tk):
         super().__init__()
         self.title("Text Manipulation Tool")
         self.geometry("1000x400")
+        self.config = vxtwitter_converter.read_config()
 
         # Checkbox at the top
         self.replacing_active_var = tk.BooleanVar()
         self.chk_replacing_active = tk.Checkbutton(self, text="Replacing active", var=self.replacing_active_var)
         self.chk_replacing_active.pack(anchor="nw")
 
+        self.running = False
+
         self.btn_manual_replace = tk.Button(
-            self, text="Manual replace", command=lambda: vxtwitter_converter.clipboard_scan_and_replace(config))
+            self, text="Manual replace", command=lambda: vxtwitter_converter.clipboard_scan_and_replace(self.config))
         self.btn_manual_replace.pack(anchor="nw")
 
         # Split the window into two frames
@@ -45,6 +48,9 @@ class Application(tk.Tk):
         # Add and Remove buttons for the right half
         self.btn_add_right = tk.Button(self.frame_right, text="Add Row", command=lambda: self.add_row("right"))
         self.btn_add_right.pack(side="bottom", fill="x")
+        self.timer = RepeatTimer(interval=0.5,
+                                 function=vxtwitter_converter.clipboard_scan_and_replace,
+                                 args=(self.config,))
 
     def add_row(self, side, first_text=None, second_text=None):
         frame = self.frame_left if side == "left" else self.frame_right
@@ -89,38 +95,51 @@ class Application(tk.Tk):
             button = row.winfo_children()[-1]  # The remove button is the last widget in the row
             button.config(state="normal" if len(rows) > 1 else "disabled")
 
+    def clipboard_loop(self):
+        if not self.running and self.replacing_active_var.get():
+            self.running = True
+            self.timer.start()
+        elif self.running and not self.replacing_active_var.get():
+            self.running = False
+            self.timer.cancel()
+
+    def clipboard_loop2(self):
+        if self.replacing_active_var.get():
+            vxtwitter_converter.clipboard_scan_and_replace(self.config)
+
+
+class RepeatTimer(threading.Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
+
 
 if __name__ == "__main__":
     app = Application()
 
     # Read config and set lines from it
-    config = vxtwitter_converter.read_config()
-    for find_replace_rule in config['line_replace']:
+    # config = vxtwitter_converter.read_config()
+    for find_replace_rule in app.config['line_replace']:
         app.add_row('left',
                     first_text=find_replace_rule['find'],
                     second_text=find_replace_rule['replace'])
 
-    for strip_partial_line_rule in config['line_partial_strip']:
+    for strip_partial_line_rule in app.config['line_partial_strip']:
         for url in strip_partial_line_rule['urls']:
             app.add_row('right',
                         first_text=url,
                         second_text=strip_partial_line_rule['characters_to_strip_after'])
 
-    # app.mainloop()
-    timer = threading.Timer(interval=0.5,
-                            function=vxtwitter_converter.clipboard_scan_and_replace,
-                            args=(config,))
-    timer.start()
 
-    while True:
-        app.update_idletasks()
-        app.update()
-        if app.replacing_active_var.get():
-            vxtwitter_converter.clipboard_scan_and_replace(config)
-
-    # while app.replacing_active_var:
-    #     try:
-    #         vxtwitter_converter.clipboard_scan_and_replace(config)
-    #         time.sleep(.5)
-    #     except pyperclip.PyperclipWindowsException as e:
-    #         print(e)
+    # running = False
+    # while True:
+    #     app.update_idletasks()
+    #     app.update()
+    #     if not running and app.replacing_active_var.get():
+    #         running = True
+    #         timer.start()
+    #     elif running and not app.replacing_active_var.get():
+    #         running = False
+    #         timer.cancel()
+    app.after(0, app.clipboard_loop)
+    app.mainloop()
