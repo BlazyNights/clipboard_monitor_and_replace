@@ -8,9 +8,11 @@ import pyperclip
 import vxtwitter_converter
 
 
-class Application(tk.Tk):
+class Application(tk.Tk, threading.Thread):
     def __init__(self):
         super().__init__()
+        threading.Thread.__init__(self)
+        self.start()
         self.title("Text Manipulation Tool")
         self.geometry("1000x400")
         self.config = vxtwitter_converter.read_config()
@@ -107,6 +109,11 @@ class Application(tk.Tk):
         if self.replacing_active_var.get():
             vxtwitter_converter.clipboard_scan_and_replace(self.config)
 
+    def run(self):
+        self.root = tk.Tk()
+        # self.root.protocol("WM_DELETE_WINDOW", self.callback)
+        self.root.mainloop()
+
 
 class RepeatTimer(threading.Timer):
     def run(self):
@@ -130,16 +137,17 @@ if __name__ == "__main__":
                         first_text=url,
                         second_text=strip_partial_line_rule['characters_to_strip_after'])
 
-
     # running = False
     # while True:
-    #     app.update_idletasks()
-    #     app.update()
+    #     # app.update_idletasks()
+    #     # app.update()
     #     if not running and app.replacing_active_var.get():
     #         running = True
     #         timer.start()
     #     elif running and not app.replacing_active_var.get():
     #         running = False
     #         timer.cancel()
-    app.after(0, app.clipboard_loop)
-    app.mainloop()
+    # app.after(0, app.clipboard_loop)
+    app.run()
+    app.clipboard_loop()
+
