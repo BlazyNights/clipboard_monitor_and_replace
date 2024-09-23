@@ -15,16 +15,20 @@ def write_config() -> None:
         __config = {
             'clipboard_monitor_interval': '.5',
             'line_replace': [
-                {'find': '/twitter.com', 'replace': '/vxtwitter.com'},
+                # {'find': '/twitter.com', 'replace': '/vxtwitter.com'},
+                {'find': '/twitter.com', 'replace': '/fixupx.com'},
                 {'find': '/x.com', 'replace': '/fixupx.com'},
                 {'find': 'www.reddit.com', 'replace': 'old.reddit.com'},
                 {'find': 'www.furaffinity.net', 'replace': 'www.fxfuraffinity.net'},
+                {'find': 'www.pixiv.net', 'replace': 'www.phixiv.net'},
             ],
             'line_partial_strip': [
                 {'urls': ('twitter.com', 'x.com',), 'characters_to_strip_after': '?'},
+                {'urls': ('twitch.tv',), 'characters_to_strip_after': '?'},
                 {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '/ref'},
                 {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '?ref'},
-                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '&ref'}]
+                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '&ref'},
+                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '?tag'}]
         }
         json.dump(__config, f, indent=4)
 
@@ -71,7 +75,7 @@ if __name__ == '__main__':
     config = read_config()
     print('Loaded rules:')
     pprint(config, width=120)
-    print(f'Now scanning clipboard every {config['clipboard_monitor_interval']}s')
+    print(f'Now scanning clipboard every {config["clipboard_monitor_interval"]}s')
 
     while True:
         try:
