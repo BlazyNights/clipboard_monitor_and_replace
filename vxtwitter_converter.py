@@ -21,9 +21,10 @@ def write_config() -> None:
                 {'find': 'www.reddit.com', 'replace': 'old.reddit.com'},
                 {'find': 'www.furaffinity.net', 'replace': 'www.fxfuraffinity.net'},
                 {'find': 'www.pixiv.net', 'replace': 'www.phixiv.net'},
+                {'find': '/bsky.app', 'replace': '/fxbsky.app'},
             ],
             'line_partial_strip': [
-                {'urls': ('twitter.com', 'x.com',), 'characters_to_strip_after': '?'},
+                {'urls': ('twitter.com', '/x.com',), 'characters_to_strip_after': '?'},
                 {'urls': ('twitch.tv',), 'characters_to_strip_after': '?'},
                 {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '/ref'},
                 {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '?ref'},
@@ -60,8 +61,9 @@ def clipboard_scan_and_replace(__config) -> None:
     # print(clipboard_contents)
     modified_clipboard = clipboard_contents
 
-    modified_clipboard = replace_text(__config, modified_clipboard)
+    # Strip stuff off the end first to match the URL of line_partial_strip, then change the site
     modified_clipboard = strip_partial_line(__config, modified_clipboard)
+    modified_clipboard = replace_text(__config, modified_clipboard)
     # print(f'returned: {replace_text(config, modified_clipboard)}')
 
     # Only update the clipboard if it's been changed
