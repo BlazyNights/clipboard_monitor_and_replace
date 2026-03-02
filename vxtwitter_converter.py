@@ -26,10 +26,8 @@ def write_config() -> None:
             'line_partial_strip': [
                 {'urls': ('twitter.com', '/x.com',), 'characters_to_strip_after': '?'},
                 {'urls': ('twitch.tv',), 'characters_to_strip_after': '?'},
-                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '/ref'},
-                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '?ref'},
-                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '&ref'},
-                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': '?tag'}]
+                {'urls': ('amazon.com', 'amazon.ca'), 'characters_to_strip_after': ('/ref', '?ref', '&ref', '?tag')},
+            ]
         }
         json.dump(__config, f, indent=4)
 
@@ -49,9 +47,9 @@ def strip_partial_line(__config: dict, __clipboard_input: str) -> str:
     """Looks for characters from config and strips the str after them"""
     changed_text = ''
     for strip_partial_line_rule in __config['line_partial_strip']:
-        if any(x in __clipboard_input for x in strip_partial_line_rule['urls']) \
-                and strip_partial_line_rule['characters_to_strip_after'] in __clipboard_input:
-            __clipboard_input = __clipboard_input.rsplit(strip_partial_line_rule['characters_to_strip_after'])[0]
+        if any(x in __clipboard_input for x in strip_partial_line_rule['urls']):
+            for characters_to_strip_after in strip_partial_line_rule['characters_to_strip_after']:
+                __clipboard_input = __clipboard_input.rsplit(characters_to_strip_after)[0]
     return changed_text or __clipboard_input
 
 
